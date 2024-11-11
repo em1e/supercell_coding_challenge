@@ -30,11 +30,28 @@ int main(int argc, char* argv[])
         sf::Event event;
         while (window.pollEvent(event))
         {
+            sf::Time elapsedTime = clock.getElapsedTime();
+            clock.restart();
+            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+            sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
             switch(event.type)
             {
                 case sf::Event::Closed:
                     // "close requested" event: we close the window
                     window.close();
+                    break;
+                case sf::Event::MouseMoved:
+                    // How to make mouse movement was referenced from https://gamedev.stackexchange.com/questions/142308/how-to-create-a-button-in-sfml
+                    // since I had no idea how to do it initially
+                    pGame->setMouseMoved(mousePosF, elapsedTime.asSeconds());
+                    break;
+                case sf::Event::MouseButtonPressed:
+                    pGame->setMousePressed(mousePosF);
+                    if (pGame->wantToQuitGame(mousePosF))
+                    {
+                        std::cout << "It's sad to see you go :(" << std::endl;
+                        window.close();
+                    }
                     break;
                 case sf::Event::KeyPressed:
                     pGame->onKeyPressed(event.key.code);
@@ -46,7 +63,14 @@ int main(int argc, char* argv[])
                     break;
             }
         }
-        
+
+        // Pressing Q quits the game, I'm not sure how to send close request, so did it this way C:
+        if (event.key.code == sf::Keyboard::Q) 
+        {
+            window.close();
+            break ;
+        }
+
         sf::Time elapsedTime = clock.getElapsedTime();
         clock.restart();
         pGame->update(elapsedTime.asSeconds());
@@ -55,10 +79,8 @@ int main(int argc, char* argv[])
         window.clear(sf::Color::Black);
         
         window.draw(*pGame.get());
-        
         // end the current frame
         window.display();
     }
-    
     return 0;
 }

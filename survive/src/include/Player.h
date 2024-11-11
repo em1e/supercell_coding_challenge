@@ -31,9 +31,15 @@ public:
     void setIsDead(bool isDead) { m_isDead = isDead; }
 
     Weapon* getWeapon() { return m_pWeapon.get(); }
+    void setWeapon(bool set);
+
+    void rotate(float difference, float deltaTime);
 
 private:
     bool    m_isDead = false;
+    float rotation = 0;
+    float dir_x = 0;
+    float dir_y = 0;
     eDirection m_direction = LEFT;
     Game*   m_pGame;
     std::unique_ptr<Weapon> m_pWeapon;
